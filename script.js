@@ -1,6 +1,96 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
+    // 0. Premium Hero Animations (Staggered Reveal & Sparkle Canvas)
+    // ==========================================
+
+    // A. Letter Reveal Animation for Hero Title
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        const text = heroTitle.textContent.trim();
+        heroTitle.innerHTML = '';
+        [...text].forEach((char, index) => {
+            const span = document.createElement('span');
+            span.style.transitionDelay = `${index * 0.05}s`;
+            if (char === ' ') {
+                span.innerHTML = '&nbsp;';
+            } else {
+                span.textContent = char;
+            }
+            heroTitle.appendChild(span);
+        });
+    }
+
+    // B. Floating Gold Sparkles Canvas
+    const canvas = document.getElementById('hero-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const maxParticles = 50;
+
+        const resizeCanvas = () => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        };
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height;
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 20;
+                this.radius = Math.random() * 1.5 + 0.5;
+                this.speed = Math.random() * 0.3 + 0.1;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.angle = Math.random() * Math.PI * 2;
+                this.wobble = Math.random() * 0.02 - 0.01;
+            }
+
+            update() {
+                this.y -= this.speed;
+                this.angle += this.wobble;
+                this.x += Math.sin(this.angle) * 0.15;
+                if (this.y < 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+                ctx.shadowBlur = this.radius * 3;
+                ctx.shadowColor = 'rgba(212, 175, 55, 0.6)';
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+            }
+        }
+
+        const initParticles = () => {
+            particles = [];
+            for (let i = 0; i < maxParticles; i++) {
+                particles.push(new Particle());
+            }
+        };
+        initParticles();
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        };
+        animate();
+    }
+
+    // ==========================================
     // 1. Background Music Player Control
     // ==========================================
     const musicToggle = document.getElementById('music-toggle');
